@@ -1,6 +1,6 @@
 ###############################################################################
 # Testing the FLR/mse-Gadget MSE framework with the simple haddock model
-# updated 11-jun-2020
+# updated: 11-jun-2020
 ###############################################################################
 
 # Install required packages (if not already)
@@ -21,7 +21,9 @@ library(FLSAM)
 library(filelock)
 #library(profvis) # Performance measurement
 
-# Set up a MSE loop
+#=====================================================================
+# Set up an MSE loop
+#=====================================================================
 runOneTimeline <- function(iterSim, saveRaw) {
 	
 	# Set seed
@@ -35,8 +37,8 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	library(gadgetr)
 
 	# Load helper functions
-	source(paste0(codeDir,"/gadget-fls.R"), local = T)
-	source(paste0(codeDir,"/overrides.R"), local = T)
+	source(paste0(codeDir, "/gadget-fls.R"), local = T)
+	source(paste0(codeDir, "/overrides.R"), local = T)
 
 	# Load the stock and files
 	# Set a directory for the Gadget OM 
@@ -44,7 +46,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 
 	# Load Gadget parameters
 	paramsfile <- "refinputfile"
-	gadget(c("-s", "-main", "main","-i", paramsfile))
+	gadget(c("-s", "-main", "main", "-i", paramsfile))
 
 	# Initialize simulation
 	initSim()
@@ -54,7 +56,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	projYear <- 2000 
 	finalYear <- 2020 
 	
-	# Set up a stock (or stocks) for the Gadget OM
+	# Set up a stock (or stocks) for Gadget 
 	stockList <- c("had")
 	had.fleets <- c("comm", "survey", "future")
 	had.stocks <- c("had")
@@ -65,14 +67,14 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	# Set stock parameters for the OM 
 	had.params <- list(stockStep = 2, minage = 1, maxage = 10, minfbar = 2, maxfbar = 8, 
 	                   startf = 0.56, endf = 0.65, areas = c(1), m1 = c(0.2), m2 = NULL)
-	# m2=NULL means we calculate m2 from gadget result, m2=0 means we use only residual mortality (m1)
+	# m2 = NULL means we calculate m2 from gadget result, m2=0 means we use only residual mortality (m1)
 	# StockStep: in which step we should observe the stock number
 	
 	# Set quarterly allocation of TAC 
 	had.forecasts.tac.proportion <- c(0.232, 0.351, 0.298, 0.119)
 	
-	# Set HCR parameters
-	had.hcr.params <- list(method = ices.hcr, args = list(blim = 100000, bsafe = 200000, fmin = 0.05, ftrg = 0.15))
+	# Set HCR function parameters (in this example, ICES HCR)
+	had.hcr.params <- list(method = ices.hcr, args = list(blim = 100000, bsafe = 200000, fmin = 0.05, ftrg = 0.25))
 	
 	# Set recruitment parameters
 	# If read csv (as a data frame), it will apply the values accordingly
@@ -90,7 +92,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	# If SCAA is chosen, the noise will be applied to both catch and index
 	had.residual.params.catch <- read.csv(paste0(paramFileDir, "/had_resid_pars_catch.csv"))
 	had.residual.params.index <- read.csv(paste0(paramFileDir, "/had_resid_pars_index.csv"))
-	had.residual.params.stock <- read.csv(paste0(paramFileDir, "/had_resid_pars_stock.csv"))
+	had.residual.params.stock <- read.csv(paste0(paramFileDir, "/had_resid_pars_stock.csv")) ########################???
 	had.residual.params.mean.stock <- NULL
 	had.residual.params.vcratios.stock <- NULL
 	
@@ -99,28 +101,27 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	had.noteating.forecast <- FALSE
 
 	# Set Gadget output 
-	gadgetOut <-list()
-
-  ## performance measurements
+	gadgetOut <- list()
+  # performance measurements
   #test <- profvis({
-	# Run until the start of projected year
+	# Run Gadget until the projection year - 1 for conditioning the OM
 	gadgetOut <- runUntil(projYear - 1)
   #})
 	#print(test)
   #browser()
 	
-	# Set stock-specifc parameters
+	# Set up a projection loop
 	prepareStock  <- function(stockNameGl) {
     
-	  #==============================================================================
-	  # OM objects
-	  #==============================================================================
-	  # Gadget as an OM
+	  #------------------------------------------------------------------------------
+	  # OM object
+	  #------------------------------------------------------------------------------
+	  # Use Gadget output to condition the OM 
 		gadget.ret <- gadgetOut[[stockNameGl]]
 		stk <- gadget.ret$stk
 		idx <- FLIndices(a = gadget.ret$idx)
 
-    # Set MSE parameters
+    # Set MSE simualtion parameters
 		it <- 1                     # iterations
 		fy <- finalYear             # final year
 		y0 <- range(stk)["minyear"] # initial data year
@@ -141,9 +142,9 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		om <- FLom(stock = stk)#, fleetBehaviour = fb)
 		#save(om, it, fy, y0, dy, iy, ny, nsqy, vy, fit, file = "om.RData")
 		
-		#==============================================================================
-		# OEM objects
-		#==============================================================================
+		#-----------------------------------------------------------------------------
+		# OEM object
+		#-----------------------------------------------------------------------------
 		# Set survey indices
 		idx <- FLIndices(a = gadget.ret$idx)
 		stk <- stock(om)
@@ -157,14 +158,14 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		  # the index is based on 01 January abundances
 			lst <- mcf(list(idx[[i]]@index, stock.n(stk0)))
 			idx.lq <- log(lst[[1]]/lst[[2]])
-			idx.qmu <- idx.qsig <- stock.n(iter(stk, 1)) ## set a dataframe for indices
+			idx.qmu <- idx.qsig <- stock.n(iter(stk, 1)) ## set a data frame for indices
 			idx.qmu[] <- yearMeans(idx.lq) ## use constant catchability
 			idx.qsig[] <- sqrt(yearVars(idx.lq))
 			idx.q <- FLQuant(NA, dimnames = dimnames(stock.n(stk)))
 			
 			# Estimate survey catchability based on lognormal distribution with mean and sd calculated above
 			idx.q <- rlnorm(it, idx.qmu, idx.qsig)
-			#idx.q[,ac(y0:iy)] <- idx.q[,ac(y0:iy)]
+			#idx.q[, ac(y0:iy)] <- idx.q[,ac(y0:iy)]
 			idx_temp <- idx.q * stock.n(stk)
 			
 			## Generate an initial index
@@ -172,10 +173,14 @@ runOneTimeline <- function(iterSim, saveRaw) {
 			range(idx_temp)[c("startf", "endf")] <- c(0, 0)
 			idcs[[i]] <- idx_temp
 		}
-		
 		names(idcs) <- names(idx)
 		#idx <- FLIndices(a=idcs$a)
-
+		idxDev <- lapply(idcs, index.q)
+		names(idxDev) <- "index.q"
+		stkDev <- FLQuant()
+		dev <- list(idx = idxDev, stk = stkDev)
+		obs <- list(idx = idcs[1], stk = stk)
+		
 		## Set deviances for catch.n ################################################################???
 		#catch.dev <- log(catch.n(stk))
 		#catch.dev <- catch.dev-iterMeans(catch.dev)
@@ -184,12 +189,8 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		#Sig <- matrix(Sig, ncol=dim(catch.dev)[1])
 		#catch.dev[,ac(vy)][] <- t(mvrnorm(it * length(vy), rep(0, nrow(Sig)), Sig))
 		#catch.dev <- exp(catch.dev)
-
-		idxDev <- lapply(idcs, index.q)
-		names(idxDev) <- "index.q"
-		stkDev <- FLQuant()
-		dev <- list(idx = idxDev, stk = stkDev)
-		obs <- list(idx = idcs[1], stk = stk)
+		
+		# Create an OEM object
 		#oem <- FLoem(method = sampling.oem, args = list(oe = "index"), observations = obs, deviances = dev)
 		oem <- FLoem()
 		#save(oem, file = "oem.RData")
@@ -198,9 +199,9 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		#iem <- FLiem(method=noise.iem, args=list(fun="rlnorm", mean=0, sd=0.1, multiplicative=TRUE))
 		iem <- FLiem()
 
-		###############################################################################
-		## Management procedure (MP)
-		###############################################################################
+		#-----------------------------------------------------------------------
+		# Management procedure (MP) object
+		#-----------------------------------------------------------------------
     # Set general MP parameters
 		mpPars <- list(seed = 1234, fy = fy, y0 = y0, dy = dy, iy = iy, management_lag = management_lag, nsqy = nsqy, it = it)
 
@@ -238,6 +239,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	source(paste0(codeDir, "/gadget-fwd.R"), local = T)
 	source(paste0(codeDir, "/mp-methods-gadget.R"), local = T)
 
+	# 
 	inputPre <- lapply(stockList, prepareStock) ################################???
 	names(inputPre) <- stockList
 	res <- mp.gadget(inputPre)
@@ -247,7 +249,9 @@ runOneTimeline <- function(iterSim, saveRaw) {
 }
 
 
-
+#======================================================================
+# Run MSE simulations
+#======================================================================
 # Enable below to run directly from R shell
 combIndex <- 1
 iterIndex <- 1
@@ -264,22 +268,22 @@ saveAllRawData <- FALSE
 # Run with combination and iterIndex
 resultFinal <- runOneTimeline(iterIndex, saveAllRawData)
 
-# Name outputs
+# Name an output file
 outFileName <- paste0(homeDir, "/results-combination", combIndex, ".rds")
 
 # Use lock to prevent race condition when combining results
 lck <- lock(paste0(outFileName, ".lock"))
 
-# Check old results
+# Check if any output files exist
 if(file.exists(outFileName)) {
-  # Load old results
+  # Load existing results
 	allResults <- readRDS(outFileName)
 } else {
   # First result
 	allResults <- list()
 }
 
-# Combine results
+# Combine all results
 allResults[[iterIndex]] <- resultFinal
 
 # Plot outputs 
