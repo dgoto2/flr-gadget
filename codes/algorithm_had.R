@@ -84,7 +84,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	had.recruit.params <- 90000000 # constant recruit number
 	#had.recruit.params <- NULL ## recruit params
 	
-	# Set assessment model parameters (truePlusNoise, SCAA, or SAM)
+	# Set assessment model parameters (truePlusNoise, SCAA, or SAM) ##################################???
 	# Select an assessment model
 	had.assessment <- "SAM" ## "truePlusNoise", "SCAA" or "SAM"
 	
