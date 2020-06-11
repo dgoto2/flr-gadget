@@ -81,7 +81,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	# If a constant value, it will apply the value as mux
 	# If NULL, it will leave the recruitment params as it is
 	#had.recruit.params <- read.csv(paste0(paramFileDir, "/muxfactors_cod.csv"))
-	had.recruit.params <- 9000 # constant recruit number
+	had.recruit.params <- 90000000 # constant recruit number
 	#had.recruit.params <- NULL ## recruit params
 	
 	# Set assessment model parameters (truePlusNoise, SCAA, or SAM)
@@ -89,7 +89,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	had.assessment <- "SAM" ## "truePlusNoise", "SCAA" or "SAM"
 	
 	# If truePlusNoise is chosen, the noise using the residual params will be applied to stock only
-	Set noise parameters
+	# Set noise parameters
 	noise_age <- data.frame(age = c (1:10), mean = array(0.001283, dim = c(10,1)), sd = array(0.053986, dim = c(10,1))) # generate simple noise
 	had.residual.params.catch <- noise_age
 	had.residual.params.index <- noise_age
