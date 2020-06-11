@@ -15,7 +15,7 @@ To run MSE, install the following packages:
 ```
 
 ## Running example codes
-An example MSE using a simple single-species (haddock) Gadget model can be found above (codes/flr-gadget_had.R).
+An example MSE using a simple single-species (haddock) Gadget model is found above (codes/flr-gadget_had.R).
 
 ## Documentation
 
