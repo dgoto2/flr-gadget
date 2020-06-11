@@ -8,9 +8,8 @@ FLR-Gadget is a Management Strategy Evaluation (MSE) framework using FLR (The Fi
 To run MSE, install the following packages:
 ```
   devtools::install_github("REDUS-IMR/gadget", ref="gadgetr")
-
   install.packages(c("mse", "FLa4a", "FLash", "FLAssess", "ggplotFL", "FLBRP", "FLCore"), repos="http://flr-project.org/R")
-  
+  # The framework requires Version 2.0 or later of mse.
   install.packages(c("dplyr", "MASS", "filelock", "copula","triangle", "coda"))  
 ```
 
