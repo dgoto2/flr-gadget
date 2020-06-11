@@ -38,7 +38,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 
 	# Load helper functions
 	source(paste0(codeDir, "/gadget-fls.R"), local = T)
-	source(paste0(codeDir, "/overrides.R"), local = T)
+	source(paste0(codeDir, "/assessment.R"), local = T)
 
 	# Load the stock and files
 	# Set a directory for the Gadget OM 
@@ -81,7 +81,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	# If a constant value, it will apply the value as mux
 	# If NULL, it will leave the recruitment params as it is
 	#had.recruit.params <- read.csv(paste0(paramFileDir, "/muxfactors_cod.csv"))
-	had.recruit.params <- 10.75871423
+	had.recruit.params <- 9000 # constant recruit number
 	#had.recruit.params <- NULL ## recruit params
 	
 	# Set assessment model parameters (truePlusNoise, SCAA, or SAM)
@@ -89,13 +89,14 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	had.assessment <- "SAM" ## "truePlusNoise", "SCAA" or "SAM"
 	
 	# If truePlusNoise is chosen, the noise using the residual params will be applied to stock only
-	# If SCAA is chosen, the noise will be applied to both catch and index
-	had.residual.params.catch <- read.csv(paste0(paramFileDir, "/had_resid_pars_catch.csv"))
-	had.residual.params.index <- read.csv(paste0(paramFileDir, "/had_resid_pars_index.csv"))
-	had.residual.params.stock <- read.csv(paste0(paramFileDir, "/had_resid_pars_stock.csv")) ########################???
+	Set noise parameters
+	noise_age <- data.frame(age = c (1:10), mean = array(0.001283, dim = c(10,1)), sd = array(0.053986, dim = c(10,1))) # generate simple noise
+	had.residual.params.catch <- noise_age
+	had.residual.params.index <- noise_age
+	had.residual.params.stock <- noise_age ########################???
 	had.residual.params.mean.stock <- NULL
 	had.residual.params.vcratios.stock <- NULL
-	
+	# If SCAA is chosen, the noise will be applied to both catch and index
 	# If no error is applied
 	#had.residual.params <- NULL
 	had.noteating.forecast <- FALSE
@@ -155,7 +156,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		for (i in 1:length(idx)){
 		  
 			# Estimate survey catchability from the a4a fit (w/o simulation) 
-		  # the index is based on 01 January abundances
+      # the index is based on 01 January abundances
 			lst <- mcf(list(idx[[i]]@index, stock.n(stk0)))
 			idx.lq <- log(lst[[1]]/lst[[2]])
 			idx.qmu <- idx.qsig <- stock.n(iter(stk, 1)) ## set a data frame for indices
@@ -202,7 +203,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		#-----------------------------------------------------------------------
 		# Management procedure (MP) object
 		#-----------------------------------------------------------------------
-    # Set general MP parameters
+    # Set MP parameters
 		mpPars <- list(seed = 1234, fy = fy, y0 = y0, dy = dy, iy = iy, management_lag = management_lag, nsqy = nsqy, it = it)
 
 		# Set simulation scenarios
@@ -224,7 +225,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		else if(saParam == "SCAA") saMethod <- sca.sa
 		else if(saParam == "SAM") saMethod <- sam.sa
 
-	  # Set MP parameters
+    # Set MP object parameters
 		ctrl <- list(hcr = mseCtrl(method = hcrParams[["method"]], args = hcrParams[["args"]]), 
 		             isys = mseCtrl(method = tac.is), est = mseCtrl(method = saMethod))
 
