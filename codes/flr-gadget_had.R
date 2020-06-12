@@ -5,6 +5,7 @@
 
 # Install required packages (if not already)
 remotes::install_github("REDUS-IMR/gadget", ref = "gadgetr")
+Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="TRUE")
 remotes::install_github("flr/mse")
 
 # Load packages
@@ -86,7 +87,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	
 	# Set assessment model parameters (truePlusNoise, SCAA/a4a, or SAM)
 	# Select an assessment model
-	had.assessment <- "SCAA" ## "truePlusNoise", "SCAA" or "SAM"
+	had.assessment <- "SAM" ## "truePlusNoise", "SCAA" or "SAM"
 	
 	# If truePlusNoise is chosen, the noise using the residual params will be applied to stock only
 	# Set noise parameters
