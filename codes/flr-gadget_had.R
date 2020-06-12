@@ -5,7 +5,7 @@
 
 # Install required packages (if not already)
 remotes::install_github("REDUS-IMR/gadget", ref = "gadgetr")
-#remotes::install_github("flr/mse")
+remotes::install_github("flr/mse")
 
 # Load packages
 library(mse)
@@ -84,20 +84,22 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	had.recruit.params <- 90000000 # constant recruit number
 	#had.recruit.params <- NULL ## recruit params
 	
-	# Set assessment model parameters (truePlusNoise, SCAA, or SAM) ##################################???
+	# Set assessment model parameters (truePlusNoise, SCAA/a4a, or SAM)
 	# Select an assessment model
-	had.assessment <- "SAM" ## "truePlusNoise", "SCAA" or "SAM"
+	had.assessment <- "SCAA" ## "truePlusNoise", "SCAA" or "SAM"
 	
 	# If truePlusNoise is chosen, the noise using the residual params will be applied to stock only
 	# Set noise parameters
 	noise_age <- data.frame(age = c (1:10), mean = array(0.001283, dim = c(10,1)), sd = array(0.053986, dim = c(10,1))) # generate simple noise
 	had.residual.params.catch <- noise_age
+	had.residual.params.stock <- noise_age 
+
+	# If SCAA is chosen, the noise will be applied to both catch and index
 	had.residual.params.index <- noise_age
-	had.residual.params.stock <- noise_age ########################???
+	
+	# If no error is applied	
 	had.residual.params.mean.stock <- NULL
 	had.residual.params.vcratios.stock <- NULL
-	# If SCAA is chosen, the noise will be applied to both catch and index
-	# If no error is applied
 	#had.residual.params <- NULL
 	had.noteating.forecast <- FALSE
 
@@ -182,7 +184,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		dev <- list(idx = idxDev, stk = stkDev)
 		obs <- list(idx = idcs[1], stk = stk)
 		
-		## Set deviances for catch.n ################################################################???
+		## Set deviances for catch.n 
 		#catch.dev <- log(catch.n(stk))
 		#catch.dev <- catch.dev-iterMeans(catch.dev)
 		#Sig <- apply(catch.dev[,ac(y0:dy),1,1,,drop=TRUE], 3, function(x) cov(t(x)))
@@ -208,7 +210,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 
 		# Set simulation scenarios
 		
-		# Tell stocks to stop eating (if requested) #####################################################???
+		# Set a consumption rule for predatory stocks to stop eating (if requested) only applied to multispecies models
 		if(eval(parse(text=paste0(stockNameGl, ".noteating.forecast")))){
 			stockCat <- eval(parse(text = paste0(stockNameGl, ".stocks")))
 			tmp <- lapply(stockCat, stopEating)
@@ -240,8 +242,8 @@ runOneTimeline <- function(iterSim, saveRaw) {
 	source(paste0(codeDir, "/gadget-fwd.R"), local = T)
 	source(paste0(codeDir, "/mp-methods-gadget.R"), local = T)
 
-	# 
-	inputPre <- lapply(stockList, prepareStock) ################################???
+	# Apply mp to compute TAC and peformance metrics 
+	inputPre <- lapply(stockList, prepareStock)
 	names(inputPre) <- stockList
 	res <- mp.gadget(inputPre)
 
