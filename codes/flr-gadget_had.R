@@ -103,13 +103,13 @@ runOneTimeline <- function(iterSim, saveRaw) {
 
 	# Set Gadget output 
 	gadgetOut <- list()
-  # performance measurements
-  #test <- profvis({
+	# performance measurements
+	#test <- profvis({
 	# Run Gadget until the projection year - 1 for conditioning the OM
 	gadgetOut <- runUntil(projYear - 1)
-  #})
+	#})
 	#print(test)
-  #browser()
+	#browser()
 	
 	# Set up a projection loop
 	prepareStock  <- function(stockNameGl) {
@@ -121,8 +121,8 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		gadget.ret <- gadgetOut[[stockNameGl]]
 		stk <- gadget.ret$stk
 		idx <- FLIndices(a = gadget.ret$idx)
-
-    # Set MSE simualtion parameters
+		
+		# Set MSE simualtion parameters
 		it <- 1                     # iterations
 		fy <- finalYear             # final year
 		y0 <- range(stk)["minyear"] # initial data year
@@ -132,8 +132,8 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		nsqy <- 3                   # number of years to compute status quo metrics
 		vy <- ac(iy:fy)             # vector of years to be projected
 		management_lag <- 1         # For ICES HCR
-
-    # Use short-term forecasts to create an initial stock object
+		
+		# Use short-term forecasts to create an initial stock object
 		stk <- stf(stk, fy-dy, nsqy, nsqy)
 
 		# Set fleet parameters
@@ -156,7 +156,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		for (i in 1:length(idx)){
 		  
 			# Estimate survey catchability from the a4a fit (w/o simulation) 
-      # the index is based on 01 January abundances
+		  # the index is based on 01 January abundances
 			lst <- mcf(list(idx[[i]]@index, stock.n(stk0)))
 			idx.lq <- log(lst[[1]]/lst[[2]])
 			idx.qmu <- idx.qsig <- stock.n(iter(stk, 1)) ## set a data frame for indices
@@ -203,7 +203,7 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		#-----------------------------------------------------------------------
 		# Management procedure (MP) object
 		#-----------------------------------------------------------------------
-    # Set MP parameters
+		# Set MP parameters
 		mpPars <- list(seed = 1234, fy = fy, y0 = y0, dy = dy, iy = iy, management_lag = management_lag, nsqy = nsqy, it = it)
 
 		# Set simulation scenarios
@@ -224,8 +224,8 @@ runOneTimeline <- function(iterSim, saveRaw) {
 		if(saParam == "truePlusNoise") saMethod <- truePlusNoise.sa
 		else if(saParam == "SCAA") saMethod <- sca.sa
 		else if(saParam == "SAM") saMethod <- sam.sa
-
-    # Set MP object parameters
+		
+		# Set MP object parameters
 		ctrl <- list(hcr = mseCtrl(method = hcrParams[["method"]], args = hcrParams[["args"]]), 
 		             isys = mseCtrl(method = tac.is), est = mseCtrl(method = saMethod))
 
