@@ -1,5 +1,5 @@
-# assessment model option - true plus noise
-#
+# assessment options
+
 applyNoise.oem <- function (stk, idx, args, stockName, ...) {
   extraArgs <- list(...)
   
