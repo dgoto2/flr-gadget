@@ -1,16 +1,11 @@
 flsval <- list(object="stk", test="!is(object, \"FLS\")", msg="\"stk must be of class FLStock\"")
-
 flival <- list(object="idx", test= "!is(object, \"FLIndices\")", msg="\"idx must be of class FLIndices\"")
-
 flpval <- list(object="hcrpars", test= "!is(object, \"FLPar\")", msg="\"hcrpars must be of class FLPar\"")
-
 flfval <- list(object="ctrl", test= "!is(object, \"fwdControl\")", msg="\"ctrl must be of class fwdControl\"")
-
 flqval <- list(object="flq", test= "!is(object, \"FLQuant\")", msg="\"flq must be of class FLQuant\"")
 
-
 mp.gadget <- function(input_multi){
-	#============================================================
+  #==========================================================
 	# Get general parameters (from the first stock)
 	#sr.om <- sr(input_multi[[stkName]]$opModel)
 	#sr.om.res <- residuals(sr.om)
@@ -34,18 +29,17 @@ mp.gadget <- function(input_multi){
 	stk.om <- list()
 	idx.om <- list()
 	tracking <- list()
-  	obsModel <- list()
+  obsModel <- list()
 
 	# Save the stock assessment result too
 	stk0.sa <- list()
 	idx0.sa <- list()
 
-	#============================================================
 	# go fish
 	for(i in vy[-length(vy)]){
+	  
 		# Do multiple flstocks
 		for(stkName in stockList){
-			
 			impModel <- input_multi[[stkName]]$impModel
 			ctrl0 <- input_multi[[stkName]]$ctrl
 			mpPars <- input_multi[[stkName]]$mpPars
@@ -61,7 +55,6 @@ mp.gadget <- function(input_multi){
 			# prepare the IndexOm (check whether this is the first iter, if not use at it is)
 			if(is.null(idx.om[[stkName]]))
 				idx.om[[stkName]] <- input_multi[[stkName]]$indices
-	
 			name(stk.om[[stkName]]) <- input_multi[[stkName]]$scenario
 
 			# init tracking (check whether this is the first iter, if not use at it is)
@@ -74,13 +67,11 @@ mp.gadget <- function(input_multi){
 
 			# GET historical
 			tracking[[stkName]]["metric.is", ac(iy)] <- catch(stk.om[[stkName]])[,ac(iy)]
-
 			gc()
 			ay <- mpPars$ay <- an(i)
 			cat(i, " > ")
 			mpPars$vy0 <- 1:(ay-y0) # data years (positions vector) - one less than current year
 			sqy <- mpPars$sqy <- ac((ay-1):(ay-nsqy)) # years for status quo computations
-		
 			tracking[[stkName]]["F.om", ac(ay-1)] <- fbar(stk.om[[stkName]])[,ac(ay-1)]
 			tracking[[stkName]]["B.om", ac(ay-1)] <- ssb(stk.om[[stkName]])[,ac(ay-1)]
 			tracking[[stkName]]["C.om", ac(ay-1)] <- catch(stk.om[[stkName]])[,ac(ay-1)]
@@ -97,11 +88,9 @@ mp.gadget <- function(input_multi){
 			ctrl.oem$args <- mpPars
 			ctrl.oem$tracking <- tracking[[stkName]]
 			ctrl.oem$ioval <- list(iv=list(t1=flsval), ov=list(t1=flsval, t2=flival))
-
 			o.out <- do.call("mpDispatch", ctrl.oem)
 			stk0 <- o.out$stk
 			idx0 <- o.out$idx
-
 			observations(obsModel[[stkName]]) <- o.out$observations
 			tracking[[stkName]] <- o.out$tracking
 
@@ -250,7 +239,6 @@ mp.gadget <- function(input_multi){
 			# stock dynamics and OM projections
 			# function g()
 			if(!is.null(attr(ctrl, "snew"))) harvest(stk.om[[stkName]])[,ac(ay+1)] <- attr(ctrl, "snew")
-
 			print(paste("For stock:", stkName, "TAC is:", ctrl@trgtArray[, , iter = 1][["val"]]))
 			
 			# Apply any modifications to Gadget

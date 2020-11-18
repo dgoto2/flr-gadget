@@ -1,14 +1,10 @@
-
-
 # Gadget forward function
 pre.gadget <- function(...)
 {
-  	# parse ... for ctrl
+  # parse ... for ctrl
 	args=list(...)
-
 	stkName <- args$stkName
 	year <- as.integer(args$year)
-
 	forecastFleets <- eval(parse(text=paste0(stkName, ".forecasts")))
 
 	# print current info (NOTE: This has to be local to process)
@@ -42,7 +38,6 @@ pre.gadget <- function(...)
 		recYearParam <- recruitParams[recruitParams$year==as.character(year), ncol(recruitParams)]
 	else
 		recYearParam <- recruitParams
-
 	if(!is.null(recYearParam)){
 		lapply(matureStocks, updateRecruitment, recYearParam, -1)
 	}
@@ -52,7 +47,7 @@ pre.gadget <- function(...)
 fwd.gadget <- function(...)
 {
 	# parse ... for ctrl
-    	args=list(...)
+  args=list(...)
 	year <- as.character(args$year)
 	print(paste("Now running gadget for ", year))
 	gadgetYear <- as.character(getEcosystemInfo()$time[["currentYear"]])
@@ -79,15 +74,12 @@ post.gadget <- function(object, objectIdx, ...)
 {
 	# parse ... for ctrl
 	args=list(...)
-
 	year <- as.character(args$year)
-
 	print(paste("Now inserting gadget data for", year))
 
 	# Update object (FLStock)
 	updated <- updateFLStock(args$stkName, gadgetOut[[year]], year, object, objectIdx)
 	object <- updated$stk
 	objectIdx <- updated$idx
-
 	return(list(stk=object, idx=objectIdx))
 }

@@ -63,13 +63,6 @@ applyNoise.oem <- function (stk, idx, args, stockName, ...) {
       stock(stk)[, year] <- sum(stock.n(stk)[, year] * stock.wt(stk)[, year])
     }
   }
-
-  #print("After")
-  #print(catch.n(idx[[1]])[,year])
-  #print(index(idx[[1]])[,year])
-  #print(fbar(stk)[,year])
-  #print(ssb(stk)[,year])
-
   return (list(stk = stk, idx = idx))
 }
 
@@ -95,6 +88,5 @@ sam.sa <- function(stk, idx, ...) {
         tracking["conv.est", ac(range(stk)["maxyear"] + 1)] <- -log(as.numeric(fit$opt$objective))
     else
         tracking["conv.est", ac(range(stk)["maxyear"] + 1)] <- as.numeric(fit$opt$objective)
-
     list(stk = stk, tracking = tracking)
 }

@@ -7,9 +7,9 @@
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Install required packages (if not already)
-remotes::install_github("REDUS-IMR/gadget", ref = "gadgetr")
+#remotes::install_github("REDUS-IMR/gadget", ref = "gadgetr")
 Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="TRUE")
-remotes::install_github("flr/mse")
+#remotes::install_github("flr/mse")
 
 # Load packages
 library(mse)
