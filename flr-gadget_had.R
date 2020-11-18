@@ -3,6 +3,9 @@
 # updated: 11-jun-2020
 ###############################################################################
 
+## set the directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
 # Install required packages (if not already)
 remotes::install_github("REDUS-IMR/gadget", ref = "gadgetr")
 Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="TRUE")

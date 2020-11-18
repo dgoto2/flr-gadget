@@ -1,3 +1,3 @@
-; Gadget version 2.2.00-BETA running on a5614-VirtualBox Fri Jun 12 15:12:52 2020
+; Gadget version 2.2.00-BETA running on ASUS-SO56V6G Wed Nov 18 17:24:36 2020
 ; Summary likelihood information from the current run
 ; year-step-area-component-weight-likelihood value
