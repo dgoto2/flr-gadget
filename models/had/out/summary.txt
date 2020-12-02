@@ -1,3 +1,0 @@
-; Gadget version 2.2.00-BETA running on ASUS-SO56V6G Wed Nov 18 17:24:36 2020
-; Summary likelihood information from the current run
-; year-step-area-component-weight-likelihood value
